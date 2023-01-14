@@ -34,6 +34,9 @@ export default async function main(inArgs?: string[]): Promise<void> {
   subparsers.add_parser('db-url', {
     help: 'Print the URL for the application database',
   })
+  subparsers.add_parser('psql', {
+    help: 'Run psql in the container, against the application database',
+  })
 
   const args = parser.parse_args(inArgs)
 
@@ -43,6 +46,9 @@ export default async function main(inArgs?: string[]): Promise<void> {
   switch (args.command) {
     case 'db-url':
       runner.printDatabaseUrl()
+      break
+    case 'psql':
+      await runner.runPsql(runner.appDatabaseUrl)
       break
     default:
       throw Error(`Unknown command: ${args.command}`)

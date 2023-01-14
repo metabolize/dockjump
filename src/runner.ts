@@ -1,9 +1,8 @@
 /* eslint-disable no-console */
 
-import { Config } from './config.schema.js'
+import { spawn } from 'child-process-promise'
 
-const DOCKJUMP_APP_USERNAME = 'dockjump_appuser'
-const DOCKJUMP_APP_PASSWORD = 'foobar'
+import { Config } from './config.schema.js'
 
 export class Runner {
   readonly config: Required<Config>
@@ -19,12 +18,40 @@ export class Runner {
 
   get appDatabaseUrl(): string {
     const {
-      development: { port, databaseName },
+      development: { port, databaseName, username, password },
     } = this.config
-    return `postgres://${DOCKJUMP_APP_USERNAME}:${DOCKJUMP_APP_PASSWORD}@localhost:${port}/${databaseName}`
+    return `postgres://${username}:${password}@localhost:${port}/${databaseName}`
   }
 
   printDatabaseUrl(): void {
     console.log(this.appDatabaseUrl)
+  }
+
+  get dockerImage(): string {
+    const { postgresVersion } = this.config
+    return `postgres:${postgresVersion}`
+  }
+
+  async runPsql(databaseUrl: string): Promise<void> {
+    const { dockerImage } = this
+    try {
+      await spawn(
+        'docker',
+        [
+          'run',
+          '--interactive',
+          '--tty',
+          '--network',
+          'host',
+          '--rm',
+          dockerImage,
+          'psql',
+          databaseUrl,
+        ],
+        { stdio: 'inherit' }
+      )
+    } catch (e) {
+      // Silence exceptions, which tend to be verbose enough.
+    }
   }
 }
