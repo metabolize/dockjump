@@ -1,0 +1,90 @@
+{
+  "name": "dockjump",
+  "description": "Docker-based PostgreSQL developer environment with Graphile Migrate",
+  "keywords": [
+    "postgresql",
+    "postgres",
+    "pg",
+    "migrate",
+    "graphile-migrate",
+    "postgraphile"
+  ],
+  "version": "0.1.0-alpha.0",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": "dist/cli.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prebuild": "del dist/",
+    "build": "tsc",
+    "postbuild": "shebang-trim dist/cli.js",
+    "predev": "del dist/",
+    "dev": "tsc --watch",
+    "check-types": "tsc --noEmit --project .",
+    "lint": "eslint \"**/*.ts\"",
+    "prettier:check": "prettier --check \"**/*.@(ts|js|yml|md|json)\"",
+    "prettier": "prettier --write \"**/*.@(ts|js|yml|md|json)\"",
+    "test": "mocha",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist/**/*.@(js|ts|map)"
+  ],
+  "repository": "metabolize/dockjump",
+  "dependencies": {
+    "argparse": "^2.0.1",
+    "chalk": "^5.0.1",
+    "globby": "^13.1.1",
+    "lodash": "^4.17.21",
+    "prettier": "^2.6.2"
+  },
+  "peerDependencies": {
+    "graphile-migrate": "*",
+    "pg": "*"
+  },
+  "devDependencies": {
+    "@types/argparse": "2.0.10",
+    "@types/chai": "^4.3.1",
+    "@types/dirty-chai": "^2.0.2",
+    "@types/lodash": "^4.14.182",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.11.18",
+    "@types/prettier": "^2.6.3",
+    "@typescript-eslint/eslint-plugin": "^5.47.1",
+    "@typescript-eslint/parser": "^5.47.1",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "del-cli": "^4.0.1",
+    "dirty-chai": "^2.0.1",
+    "eslint": "^8.31.0",
+    "eslint-config-prettier": "8.6.0",
+    "eslint-config-standard": "17.0.0",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-n": "15.6.1",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "6.1.1",
+    "eslint-plugin-simple-import-sort": "8.0.0",
+    "mocha": "^10.0.0",
+    "shebang-trim": "^1.1.0",
+    "ts-node": "^10.9.1",
+    "type-fest": "^3.5.0",
+    "typescript": "4.9.4"
+  },
+  "engines": {
+    "node": ">= 16.x"
+  },
+  "mocha": {
+    "extension": [
+      "ts"
+    ],
+    "spec": "src/**/*.spec.ts",
+    "loader": "ts-node/esm"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "bracketSpacing": true,
+    "arrowParens": "avoid"
+  }
+}

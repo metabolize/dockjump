@@ -22,6 +22,13 @@ welcome!
 
 [graphile migrate]: https://github.com/graphile/migrate
 
+## Installation
+
+```sh
+npm install --save pg graphile-migrate
+npm install --save-dev dockjump pg
+```
+
 ## How it works
 
 - `dockjump init` writes out `.gmrc` and `.env` and runs
