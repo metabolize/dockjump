@@ -12,7 +12,7 @@ do its thing.
 In production, Dockjump is not in the picture: you run
 `graphile-migrate migrate` the usual way.
 
-We've been using this pattern for a while at Metabolize–Curvewise with a
+We've been using similar tooling at Metabolize–Curvewise for a while, with a
 Postgraphile/CRA project running on MacOS and Linux hosts. Dockjump would work
 equally well on any Postgres project, including with `npx` if you're not using
 Node.
