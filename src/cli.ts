@@ -35,7 +35,7 @@ export default async function main(inArgs?: string[]): Promise<void> {
     help: 'Print the URL for the application database',
   })
   subparsers.add_parser('psql', {
-    help: 'Run psql in the container, against the application database',
+    help: 'Run psql (in a second container) and connect to the running application database',
   })
 
   const args = parser.parse_args(inArgs)
