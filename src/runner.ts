@@ -1,8 +1,10 @@
 /* eslint-disable no-console */
 
 import { spawn } from 'child-process-promise'
+import { promises as fs } from 'fs'
 
 import { Config } from './config.schema.js'
+import { createDirForTargetFile } from './fs.js'
 
 export class Runner {
   readonly config: Required<Config>
@@ -66,10 +68,42 @@ export class Runner {
     try {
       await spawn(command, args, {
         stdio: 'inherit',
-        env: { DATABASE_URL: appDatabaseUrl },
+        env: { ...process.env, DATABASE_URL: appDatabaseUrl },
       })
     } catch (e) {
       // Silence exceptions.
     }
+  }
+
+  async getSchema(): Promise<string> {
+    const { dockerImage, appDatabaseUrl } = this
+
+    // TODO: Add option to exclude more schema.
+    const { stdout } = await spawn(
+      'docker',
+      [
+        'run',
+        '--network',
+        'host',
+        '--rm',
+        dockerImage,
+        'pg_dump',
+        '--no-sync',
+        '--schema-only',
+        '--no-owner',
+        '--exclude-schema=graphile_migrate',
+        appDatabaseUrl,
+      ],
+      { capture: ['stdout'] }
+    )
+
+    return stdout
+  }
+
+  async exportSchema(): Promise<void> {
+    const schema = await this.getSchema()
+    const target = 'dockjump/generated.sql'
+    await createDirForTargetFile(target)
+    await fs.writeFile(target, schema, { encoding: 'utf-8' })
   }
 }
