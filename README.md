@@ -81,7 +81,6 @@ involves docks&hellip; and the Post.
 ![](https://fh-sites.imgix.net/sites/4390/2020/08/31200405/U.S.-Mailboat-Tour-image-1.jpg?auto=compress%2Cformat&w=700&h=700&fit=max)
 
 [mail jumping]: https://www.atlasobscura.com/articles/mail-jumping-lake-geneva
-
 [benjie]: https://github.com/benjie
 [jem]: https://github.com/jemgillam
 [jacob beard]: https://github.com/jbeard4

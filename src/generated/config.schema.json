@@ -1,0 +1,21 @@
+{
+  "$ref": "#/definitions/Config",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Config": {
+      "additionalProperties": false,
+      "properties": {
+        "postgres": {
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
