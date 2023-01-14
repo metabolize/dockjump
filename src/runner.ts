@@ -54,4 +54,22 @@ export class Runner {
       // Silence exceptions, which tend to be verbose enough.
     }
   }
+
+  async run(
+    command: Readonly<string>,
+    args: ReadonlyArray<string>
+  ): Promise<void> {
+    const { appDatabaseUrl } = this
+
+    // TODO: Create container if not exists.
+    // TODO: Start container detached (i.e. in the background)
+    try {
+      await spawn(command, args, {
+        stdio: 'inherit',
+        env: { DATABASE_URL: appDatabaseUrl },
+      })
+    } catch (e) {
+      // Silence exceptions.
+    }
+  }
 }
