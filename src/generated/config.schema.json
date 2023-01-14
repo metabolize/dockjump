@@ -5,16 +5,24 @@
     "Config": {
       "additionalProperties": false,
       "properties": {
-        "postgres": {
+        "development": {
           "additionalProperties": false,
           "properties": {
-            "version": {
+            "databaseName": {
               "type": "string"
+            },
+            "port": {
+              "type": "number"
             }
           },
+          "required": ["databaseName"],
           "type": "object"
+        },
+        "postgresVersion": {
+          "type": "string"
         }
       },
+      "required": ["development"],
       "type": "object"
     }
   }

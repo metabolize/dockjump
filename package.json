@@ -18,7 +18,7 @@
   "scripts": {
     "prebuild": "del dist/",
     "build": "tsc",
-    "postbuild": "shebang-trim dist/cli.js",
+    "postbuild": "mkdir dist/generated && cp src/generated/*.json dist/generated && chmod +x dist/cli.js && shebang-trim dist/cli.js",
     "predev": "del dist/",
     "dev": "tsc --watch",
     "check-types": "tsc --noEmit --project .",

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { Config } from './config.schema'
+import { Config } from './config.schema.js'
 
 const DOCKJUMP_APP_USERNAME = 'dockjump_appuser'
 const DOCKJUMP_APP_PASSWORD = 'foobar'

@@ -7,7 +7,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { loadConfig } from './config'
+import { loadConfig } from './config.js'
 import { Runner } from './runner.js'
 
 export default async function main(inArgs?: string[]): Promise<void> {
