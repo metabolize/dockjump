@@ -42,8 +42,11 @@ export default async function main(inArgs?: string[]): Promise<void> {
   })
   run.add_argument('cmd', { metavar: 'command', help: 'command to run' })
   run.add_argument('args', { help: 'arguments to pass', nargs: '*' })
-  subparsers.add_parser('export-schema', {
+  subparsers.add_parser('write-schema', {
     help: 'Write the schema of the running application database to dockjump/generated.sql',
+  })
+  subparsers.add_parser('check-schema', {
+    help: 'Check that dockjump/generated.sql is up to date',
   })
 
   const args = parser.parse_args(inArgs)
@@ -61,8 +64,15 @@ export default async function main(inArgs?: string[]): Promise<void> {
     case 'run':
       await runner.run(args.cmd, args.args)
       break
-    case 'export-schema':
-      await runner.exportSchema()
+    case 'write-schema':
+      await runner.writeSchema()
+      break
+    case 'check-schema':
+      try{
+      await runner.checkSchema()
+      } catch(e) {
+        process.exit(1)
+      }
       break
     default:
       throw Error(`Unknown command: ${args.command}`)

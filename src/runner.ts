@@ -6,6 +6,13 @@ import { promises as fs } from 'fs'
 import { Config } from './config.schema.js'
 import { createDirForTargetFile } from './fs.js'
 
+const SCHEMA_EXPORT_PATH = 'dockjump/generated.sql'
+
+function dispatchError(message: string): void {
+  console.error(message)
+  throw Error(message)
+}
+
 export class Runner {
   readonly config: Required<Config>
   readonly basedir: string
@@ -100,10 +107,28 @@ export class Runner {
     return stdout
   }
 
-  async exportSchema(): Promise<void> {
+  async writeSchema(): Promise<void> {
     const schema = await this.getSchema()
-    const target = 'dockjump/generated.sql'
-    await createDirForTargetFile(target)
-    await fs.writeFile(target, schema, { encoding: 'utf-8' })
+    await createDirForTargetFile(SCHEMA_EXPORT_PATH)
+    await fs.writeFile(SCHEMA_EXPORT_PATH, schema, { encoding: 'utf-8' })
+  }
+
+  async checkSchema(): Promise<void> {
+    let exportedSchema
+    try {
+      exportedSchema = await fs.readFile(SCHEMA_EXPORT_PATH, {
+        encoding: 'utf-8',
+      })
+    } catch (e) {
+      if ((e as  NodeJS.ErrnoException).code === 'ENOENT') {
+        dispatchError(`${SCHEMA_EXPORT_PATH} does not exist`)
+      } else {
+        throw e
+      }
+    }
+    const schema = await this.getSchema()
+    if (exportedSchema !== schema) {
+      dispatchError(`${SCHEMA_EXPORT_PATH} is not up to date`)
+    }
   }
 }
