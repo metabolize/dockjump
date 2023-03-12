@@ -9,7 +9,7 @@
     "graphile-migrate",
     "postgraphile"
   ],
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -30,7 +30,7 @@
     "prepare": "npm run build"
   },
   "files": [
-    "dist/**/*.@(js|ts|map)"
+    "dist/**/*.@(js|json|ts|map)"
   ],
   "repository": "metabolize/dockjump",
   "dependencies": {
