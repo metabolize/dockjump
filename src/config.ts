@@ -3,9 +3,10 @@ import { cosmiconfig } from 'cosmiconfig'
 import fs from 'fs'
 import lodash from 'lodash'
 import path from 'path'
+import { PartialDeep } from 'type-fest'
 import { fileURLToPath } from 'url'
 
-import { Config, DEFAULT_CONFIG } from './config.schema.js'
+import { ConfigInput } from './config.schema.js'
 
 const jsonSchema = JSON.parse(
   fs.readFileSync(
@@ -18,17 +19,40 @@ const jsonSchema = JSON.parse(
   )
 )
 const ajv = new Ajv({ removeAdditional: true }).addSchema(jsonSchema)
+
+// Adapted from https://stackoverflow.com/a/67833840/893113
+export type RequiredDeep<T> = {
+  [K in keyof T]: RequiredDeep<T[K]>
+} & Required<T>
+
+export type Config = RequiredDeep<ConfigInput>
+
+export const DEFAULT_CONFIG: PartialDeep<Config> = {
+  development: {
+    port: 15432,
+    username: 'dockjump_appuser',
+    password: 'foobar',
+  },
+  postgresVersion: '13.2',
+}
+
 const explorer = cosmiconfig('dockjump', { searchPlaces: ['package.json'] })
 
-export async function loadConfig(): Promise<Required<Config>> {
-  const result = await explorer.search()
-  if (!result) {
+export async function loadConfig(): Promise<RequiredDeep<Config>> {
+  const loaded = await explorer.search()
+  if (!loaded) {
     throw Error(
       'Configuration not found. Please add a `dockjump` section to package.json.'
     )
-  } else if (!ajv.validate('#/definitions/Config', result.config)) {
+  } else if (!ajv.validate('#/definitions/ConfigInput', loaded.config)) {
     throw Error(ajv.errorsText(ajv.errors))
-  } else {
-    return lodash.defaultsDeep({}, result.config, DEFAULT_CONFIG)
   }
+
+  const validated = loaded.config as ConfigInput
+  const dynamicDefaults: PartialDeep<Config> = {
+    development: {
+      containerName: `dockjump_${validated.development.databaseName}`,
+    },
+  }
+  return lodash.defaultsDeep({}, validated, dynamicDefaults, DEFAULT_CONFIG)
 }

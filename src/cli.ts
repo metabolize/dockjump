@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node-script
+#!/usr/bin/env ts-node-script --esm
 
 'use strict'
 
@@ -31,6 +31,10 @@ export default async function main(inArgs?: string[]): Promise<void> {
     description: 'valid subcommands',
     required: true,
   })
+  subparsers.add_parser('init', { help: 'Create .gmrc.js' })
+  subparsers.add_parser('create', {
+    help: "Create the database container (if it doesn't exist)",
+  })
   subparsers.add_parser('db-url', {
     help: 'Print the URL for the application database',
   })
@@ -48,6 +52,7 @@ export default async function main(inArgs?: string[]): Promise<void> {
   subparsers.add_parser('check-schema', {
     help: 'Check that dockjump/generated.sql is up to date',
   })
+  subparsers.add_parser('clean', { help: 'Remove the database container' })
 
   const args = parser.parse_args(inArgs)
 
@@ -55,6 +60,12 @@ export default async function main(inArgs?: string[]): Promise<void> {
   const runner = new Runner(config)
 
   switch (args.command) {
+    case 'init':
+      await runner.init()
+      break
+    case 'create':
+      await runner.create()
+      break
     case 'db-url':
       runner.printDatabaseUrl()
       break
@@ -68,11 +79,14 @@ export default async function main(inArgs?: string[]): Promise<void> {
       await runner.writeSchema()
       break
     case 'check-schema':
-      try{
-      await runner.checkSchema()
-      } catch(e) {
+      try {
+        await runner.checkSchema()
+      } catch (e) {
         process.exit(1)
       }
+      break
+    case 'clean':
+      await runner.removeContainer()
       break
     default:
       throw Error(`Unknown command: ${args.command}`)

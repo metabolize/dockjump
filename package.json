@@ -18,7 +18,7 @@
   "scripts": {
     "prebuild": "del dist/",
     "build": "tsc",
-    "postbuild": "mkdir dist/generated && cp src/generated/*.json dist/generated && chmod +x dist/cli.js && shebang-trim dist/cli.js",
+    "postbuild": "cp src/*.sh dist && mkdir dist/generated && cp src/generated/*.json dist/generated && chmod +x dist/cli.js && shebang-trim dist/cli.js",
     "predev": "del dist/",
     "dev": "tsc --watch",
     "check-types": "tsc --noEmit --project .",
@@ -41,7 +41,9 @@
     "cosmiconfig": "^8.0.0",
     "globby": "^13.1.1",
     "lodash": "^4.17.21",
-    "prettier": "^2.6.2"
+    "prettier": "^2.6.2",
+    "type-fest": "3.5.2",
+    "wait-promise": "^0.4.1"
   },
   "peerDependencies": {
     "graphile-migrate": "*",
@@ -56,6 +58,7 @@
     "@types/mocha": "9.1.1",
     "@types/node": "18.11.18",
     "@types/prettier": "2.6.3",
+    "@types/wait-promise": "^0.4.0",
     "@typescript-eslint/eslint-plugin": "5.47.1",
     "@typescript-eslint/parser": "5.47.1",
     "1schema": "0.2.0",
@@ -72,7 +75,7 @@
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-simple-import-sort": "8.0.0",
     "mocha": "10.0.0",
-    "shebang-trim": "1.1.0",
+    "shebang-trim": "1.2.0",
     "ts-node": "10.9.1",
     "typescript": "4.9.4"
   },
