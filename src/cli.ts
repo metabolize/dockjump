@@ -35,6 +35,13 @@ export default async function main(inArgs?: string[]): Promise<void> {
   subparsers.add_parser('create', {
     help: "Create the database container (if it doesn't exist)",
   })
+  const start = subparsers.add_parser('start', {
+    help: `Start the container, creating it if it doesn't exist`,
+  })
+  start.add_argument('-a', '--attach', {
+    help: 'Attach STDOUT/STDERR and forward signals',
+    action: 'store_true',
+  })
   subparsers.add_parser('db-url', {
     help: 'Print the URL for the application database',
   })
@@ -52,7 +59,10 @@ export default async function main(inArgs?: string[]): Promise<void> {
   subparsers.add_parser('check-schema', {
     help: 'Check that dockjump/generated.sql is up to date',
   })
-  subparsers.add_parser('clean', { help: 'Remove the database container' })
+  subparsers.add_parser('stop', { help: `Stop the container if it's running` })
+  subparsers.add_parser('clean', {
+    help: 'Remove the database container if it exists',
+  })
 
   const args = parser.parse_args(inArgs)
 
@@ -65,6 +75,9 @@ export default async function main(inArgs?: string[]): Promise<void> {
       break
     case 'create':
       await runner.create()
+      break
+    case 'start':
+      await runner.performStart({ attach: args.attach })
       break
     case 'db-url':
       runner.printDatabaseUrl()
@@ -84,6 +97,9 @@ export default async function main(inArgs?: string[]): Promise<void> {
       } catch (e) {
         process.exit(1)
       }
+      break
+    case 'stop':
+      await runner.performStop()
       break
     case 'clean':
       await runner.removeContainer()

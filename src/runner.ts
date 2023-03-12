@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import { spawn } from 'child-process-promise'
-import { promises as fs, existsSync } from 'fs'
+import { existsSync, promises as fs } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import wait from 'wait-promise'
@@ -24,6 +24,11 @@ export class Runner {
   constructor(config: Config, { basedir }: { basedir?: string } = {}) {
     this.config = config
     this.basedir = basedir ?? process.cwd()
+  }
+
+  async containerExists(): Promise<boolean> {
+    const { containerName } = this.config.development
+    return namedContainerExists(containerName)
   }
 
   get appDatabaseUrl(): string {
@@ -102,20 +107,18 @@ export class Runner {
 
   private async migrate(): Promise<void> {
     console.error('Running migrations')
-    await spawn(
-      './node_modules/.bin/graphile-migrate',
-      ['migrate'],
-      { stdio: ['ignore', 'inherit', 'inherit'] }
-    )
+    await spawn('./node_modules/.bin/graphile-migrate', ['migrate'], {
+      stdio: ['ignore', 'inherit', 'inherit'],
+    })
   }
 
-  async create(): Promise<void> {
+  private async createContainer(): Promise<void> {
     const { postgresDockerImage } = this
     const {
       development: { containerName, port },
     } = this.config
 
-    if (await namedContainerExists(containerName)) {
+    if (await this.containerExists()) {
       console.error(`Container ${containerName} already exists; nothing to do.`)
       return
     } else {
@@ -148,25 +151,56 @@ export class Runner {
       await this.setUpDatabases()
       await this.migrate()
     } finally {
-      console.error(`Stopping container ${containerName}`)
       await this.stop()
     }
 
     console.error(`Container ${containerName} is ready to use`)
   }
 
-  async start(): Promise<void> {
+  async create(): Promise<void> {
+    if (await this.containerExists()) {
+      const { containerName } = this.config.development
+      console.error(`Container ${containerName} already exists; nothing to do.`)
+    } else {
+      await this.createContainer()
+    }
+  }
+
+  async performStart({ attach }: { attach: boolean }): Promise<void> {
+    if (!(await this.containerExists())) {
+      await this.createContainer()
+    }
+    await this.start({ attach })
+  }
+
+  private async start(
+    { attach }: { attach: boolean } = { attach: false }
+  ): Promise<void> {
     const { containerName } = this.config.development
-    await spawn('docker', ['start', containerName], {
-      stdio: ['ignore', 'ignore', 'inherit'],
-    })
+    if (attach) {
+      console.error(`Attaching to container ${containerName}`)
+      await spawn('docker', ['start', containerName, '--attach'], {
+        stdio: 'inherit',
+      })
+    } else {
+      await spawn('docker', ['start', containerName], {
+        stdio: ['ignore', 'ignore', 'inherit'],
+      })
+    }
   }
 
   private async stop(): Promise<void> {
     const { containerName } = this.config.development
+    console.error(`Stopping container ${containerName}`)
     await spawn('docker', ['stop', containerName], {
       stdio: ['ignore', 'ignore', 'inherit'],
     })
+  }
+
+  async performStop(): Promise<void> {
+    if (await this.containerExists()) {
+      await this.stop()
+    }
   }
 
   async removeContainer(): Promise<void> {
@@ -221,17 +255,20 @@ export class Runner {
     args: ReadonlyArray<string>
   ): Promise<void> {
     const { appDatabaseUrl } = this
-
-    // TODO: Create container if not exists.
-    // TODO: Start container detached (i.e. in the background)
-    try {
-      await spawn(command, args, {
-        stdio: 'inherit',
-        env: { ...process.env, DATABASE_URL: appDatabaseUrl },
-      })
-    } catch (e) {
-      // Silence exceptions.
+    if (!(await this.containerExists())) {
+      await this.createContainer()
     }
+
+    await this.start()
+
+    // try {
+    await spawn(command, args, {
+      stdio: 'inherit',
+      env: { ...process.env, DATABASE_URL: appDatabaseUrl },
+    })
+    // } catch (e) {
+    // Silence exceptions.
+    // }
   }
 
   async getSchema(): Promise<string> {
