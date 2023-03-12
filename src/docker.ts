@@ -20,3 +20,15 @@ export async function namedContainerExists(name: string): Promise<boolean> {
     )
   }
 }
+
+export async function stopContainer(containerName: string): Promise<void> {
+  await spawn('docker', ['stop', containerName], {
+    stdio: ['ignore', 'ignore', 'inherit'],
+  })
+}
+
+export async function removeContainer(containerName: string): Promise<void> {
+  await spawn('docker', ['rm', containerName], {
+    stdio: ['ignore', 'ignore', 'inherit'],
+  })
+}

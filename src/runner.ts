@@ -7,7 +7,11 @@ import { fileURLToPath } from 'url'
 import wait from 'wait-promise'
 
 import { Config } from './config.js'
-import { namedContainerExists } from './docker.js'
+import {
+  namedContainerExists,
+  removeContainer,
+  stopContainer,
+} from './docker.js'
 import { createDirForTargetFile } from './fs.js'
 
 const SCHEMA_EXPORT_PATH = 'dockjump/generated.sql'
@@ -26,9 +30,9 @@ export class Runner {
     this.basedir = basedir ?? process.cwd()
   }
 
-  async containerExists(): Promise<boolean> {
-    const { containerName } = this.config.development
-    return namedContainerExists(containerName)
+  get postgresDockerImage(): string {
+    const { postgresVersion } = this.config
+    return `postgres:${postgresVersion}`
   }
 
   get appDatabaseUrl(): string {
@@ -38,22 +42,24 @@ export class Runner {
     return `postgres://${username}:${password}@localhost:${port}/${databaseName}`
   }
 
-  private get gmrcConfig(): string {
+  performPrintDatabaseUrl(): void {
+    console.log(this.appDatabaseUrl)
+  }
+
+  async performInit(): Promise<void> {
+    if (existsSync('.gmrc.js')) {
+      throw Error('.gmrc.js already exists')
+    }
+
     const { port, databaseName, username, password } = this.config.development
-    return `module.exports = {
+    const gmrcConfig = `module.exports = {
   rootConnectionString: 'postgres://postgres:postgres@localhost:${port}/postgres',
   connectionString: 'postgres://${username}:${password}@localhost:${port}/${databaseName}',
   shadowConnectionString: 'postgres://${username}:${password}@localhost:${port}/${databaseName}_shadow',
 }
 `
-  }
 
-  async init(): Promise<void> {
-    if (existsSync('.gmrc.js')) {
-      throw Error('.gmrc.js already exists')
-    }
-
-    await fs.writeFile('.gmrc.js', this.gmrcConfig, 'utf-8')
+    await fs.writeFile('.gmrc.js', gmrcConfig, 'utf-8')
   }
 
   private async setUpDatabases(): Promise<void> {
@@ -112,6 +118,11 @@ export class Runner {
     })
   }
 
+  async containerExists(): Promise<boolean> {
+    const { containerName } = this.config.development
+    return namedContainerExists(containerName)
+  }
+
   private async createContainer(): Promise<void> {
     const { postgresDockerImage } = this
     const {
@@ -157,20 +168,13 @@ export class Runner {
     console.error(`Container ${containerName} is ready to use`)
   }
 
-  async create(): Promise<void> {
+  async performCreate(): Promise<void> {
     if (await this.containerExists()) {
       const { containerName } = this.config.development
       console.error(`Container ${containerName} already exists; nothing to do.`)
     } else {
       await this.createContainer()
     }
-  }
-
-  async performStart({ attach }: { attach: boolean }): Promise<void> {
-    if (!(await this.containerExists())) {
-      await this.createContainer()
-    }
-    await this.start({ attach })
   }
 
   private async start(
@@ -189,12 +193,17 @@ export class Runner {
     }
   }
 
+  async performStart({ attach }: { attach: boolean }): Promise<void> {
+    if (!(await this.containerExists())) {
+      await this.createContainer()
+    }
+    await this.start({ attach })
+  }
+
   private async stop(): Promise<void> {
     const { containerName } = this.config.development
     console.error(`Stopping container ${containerName}`)
-    await spawn('docker', ['stop', containerName], {
-      stdio: ['ignore', 'ignore', 'inherit'],
-    })
+    await stopContainer(containerName)
   }
 
   async performStop(): Promise<void> {
@@ -203,7 +212,7 @@ export class Runner {
     }
   }
 
-  async removeContainer(): Promise<void> {
+  async performRemoveContainer(): Promise<void> {
     const { containerName } = this.config.development
 
     if (!(await namedContainerExists(containerName))) {
@@ -212,22 +221,11 @@ export class Runner {
     }
 
     await this.stop()
-    await spawn('docker', ['rm', containerName], {
-      stdio: ['ignore', 'ignore', 'inherit'],
-    })
+    await removeContainer(containerName)
     console.error(`Removed container ${containerName}`)
   }
 
-  printDatabaseUrl(): void {
-    console.log(this.appDatabaseUrl)
-  }
-
-  get postgresDockerImage(): string {
-    const { postgresVersion } = this.config
-    return `postgres:${postgresVersion}`
-  }
-
-  async runPsql(databaseUrl: string): Promise<void> {
+  async performRunPsql(databaseUrl: string): Promise<void> {
     const { postgresDockerImage } = this
     try {
       await spawn(
@@ -250,7 +248,7 @@ export class Runner {
     }
   }
 
-  async run(
+  async performRun(
     command: Readonly<string>,
     args: ReadonlyArray<string>
   ): Promise<void> {
@@ -271,7 +269,7 @@ export class Runner {
     // }
   }
 
-  async getSchema(): Promise<string> {
+  private async getSchema(): Promise<string> {
     const { postgresDockerImage, appDatabaseUrl } = this
 
     // TODO: Add option to exclude more schema.
@@ -296,13 +294,13 @@ export class Runner {
     return stdout
   }
 
-  async writeSchema(): Promise<void> {
+  async performWriteSchema(): Promise<void> {
     const schema = await this.getSchema()
     await createDirForTargetFile(SCHEMA_EXPORT_PATH)
     await fs.writeFile(SCHEMA_EXPORT_PATH, schema, { encoding: 'utf-8' })
   }
 
-  async checkSchema(): Promise<void> {
+  async performCheckSchema(): Promise<void> {
     let exportedSchema
     try {
       exportedSchema = await fs.readFile(SCHEMA_EXPORT_PATH, {

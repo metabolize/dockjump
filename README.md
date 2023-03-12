@@ -31,9 +31,9 @@ npm install --save-dev dockjump pg
 
 ## How it works
 
-- `dockjump init` writes out `.gmrc` and `.env` and runs
-  `graphile-migrate init`.
-- `dockjump start` starts a Docker container with the necessary databases.
+- `dockjump init` writes out `.gmrc.js`.
+- `dockjump start` starts a Docker container with the necessary databases
+  and initially runs the migrations.
 - With the container running, you can use `graphile-migrate migrate` or
   `graphile-migrate watch` and connect to the database from the host machine
   as usual.

@@ -71,29 +71,29 @@ export default async function main(inArgs?: string[]): Promise<void> {
 
   switch (args.command) {
     case 'init':
-      await runner.init()
+      await runner.performInit()
       break
     case 'create':
-      await runner.create()
+      await runner.performCreate()
       break
     case 'start':
       await runner.performStart({ attach: args.attach })
       break
     case 'db-url':
-      runner.printDatabaseUrl()
+      runner.performPrintDatabaseUrl()
       break
     case 'psql':
-      await runner.runPsql(runner.appDatabaseUrl)
+      await runner.performRunPsql(runner.appDatabaseUrl)
       break
     case 'run':
-      await runner.run(args.cmd, args.args)
+      await runner.performRun(args.cmd, args.args)
       break
     case 'write-schema':
-      await runner.writeSchema()
+      await runner.performWriteSchema()
       break
     case 'check-schema':
       try {
-        await runner.checkSchema()
+        await runner.performCheckSchema()
       } catch (e) {
         process.exit(1)
       }
@@ -102,7 +102,7 @@ export default async function main(inArgs?: string[]): Promise<void> {
       await runner.performStop()
       break
     case 'clean':
-      await runner.removeContainer()
+      await runner.performRemoveContainer()
       break
     default:
       throw Error(`Unknown command: ${args.command}`)
