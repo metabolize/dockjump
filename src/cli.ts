@@ -52,6 +52,10 @@ export default async function main(inArgs?: string[]): Promise<void> {
   const run = subparsers.add_parser('run', {
     help: 'Run the given command with DATABASE_URL set in the environment',
   })
+  run.add_argument('-s', '--start', {
+    help: 'Ensure the database server is running before running the command',
+    action: 'store_true',
+  })
   run.add_argument('cmd', { metavar: 'command', help: 'command to run' })
   run.add_argument('args', { help: 'arguments to pass', nargs: '*' })
   subparsers.add_parser('write-schema', {
@@ -60,6 +64,7 @@ export default async function main(inArgs?: string[]): Promise<void> {
   subparsers.add_parser('check-schema', {
     help: 'Check that dockjump/generated.sql is up to date',
   })
+  subparsers.add_parser('dump', { help: 'Dump the database to stdout' })
   subparsers.add_parser('stop', { help: `Stop the container if it's running` })
   subparsers.add_parser('clean', {
     help: 'Remove the database container if it exists',
@@ -87,7 +92,7 @@ export default async function main(inArgs?: string[]): Promise<void> {
       await runner.performRunPsql(runner.appDatabaseUrl, args.args)
       break
     case 'run':
-      await runner.performRun(args.cmd, args.args)
+      await runner.performRun(args.cmd, args.args, { start: args.start })
       break
     case 'write-schema':
       await runner.performWriteSchema()
@@ -98,6 +103,9 @@ export default async function main(inArgs?: string[]): Promise<void> {
       } catch (e) {
         process.exit(1)
       }
+      break
+    case 'dump':
+      await runner.performDump()
       break
     case 'stop':
       await runner.performStop()

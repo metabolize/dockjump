@@ -263,14 +263,18 @@ export class Runner {
 
   async performRun(
     command: Readonly<string>,
-    args: ReadonlyArray<string>
+    args: ReadonlyArray<string>,
+    { start }: { start: boolean }
   ): Promise<void> {
     const { appDatabaseUrl } = this
-    if (!(await this.containerExists())) {
-      await this.createContainer()
-    }
 
-    await this.start()
+    if (start) {
+      if (!(await this.containerExists())) {
+        await this.createContainer()
+      }
+
+      await this.start()
+    }
 
     // try {
     await spawn(command, args, {
@@ -282,7 +286,9 @@ export class Runner {
     // }
   }
 
-  private async getSchema(): Promise<string> {
+  private async dump({
+    schemaOnly,
+  }: { schemaOnly?: boolean } = {}): Promise<string> {
     const { postgresDockerImage, appDatabaseUrl } = this
 
     // TODO: Add option to exclude more schema.
@@ -296,19 +302,23 @@ export class Runner {
         postgresDockerImage,
         'pg_dump',
         '--no-sync',
-        '--schema-only',
+        schemaOnly ? '--schema-only' : '',
         '--no-owner',
         '--exclude-schema=graphile_migrate',
         appDatabaseUrl,
-      ],
+      ].filter(Boolean),
       { capture: ['stdout'] }
     )
 
     return stdout
   }
 
+  async performDump(): Promise<void> {
+    console.log(await this.dump())
+  }
+
   async performWriteSchema(): Promise<void> {
-    const schema = await this.getSchema()
+    const schema = await this.dump({ schemaOnly: true })
     await createDirForTargetFile(SCHEMA_EXPORT_PATH)
     await fs.writeFile(SCHEMA_EXPORT_PATH, schema, { encoding: 'utf-8' })
   }
@@ -326,7 +336,7 @@ export class Runner {
         throw e
       }
     }
-    const schema = await this.getSchema()
+    const schema = await this.dump({ schemaOnly: true })
     if (exportedSchema !== schema) {
       dispatchError(`${SCHEMA_EXPORT_PATH} is not up to date`)
     }
