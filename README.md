@@ -9,7 +9,7 @@ providing local Docker-based PostgreSQL that just works out of the box. It sets
 up the necessary root, shadow, and application databases for graphile-migrate to
 do its thing.
 
-In production, Dockjump is not in the picture: you run
+In production, Dockjump is not in the picture: you set `DATABASE_URL` and run
 `graphile-migrate migrate` the usual way.
 
 We've been using similar tooling at Metabolize–Curvewise for a while, with a
