@@ -45,10 +45,12 @@ npm install --save-dev dockjump pg
 
 ## Features
 
+- Generates `.gmrc.js`
 - Provisions a local, application-specific docker container
 - Within the container, provisions root, application, and shadow databases
 - Provides commands convenient for interacting with the container, database,
-  schema, and migrations - Generate `.gmrc.js`
+  schema, and migrations
+- Provides command for running psql
 - After running migrations, re-exports the schema
 - Verifies the exported schema is up to date (useful for running in CI)
 - Checks that `dockjump/current.sql` is empty-ish (also useful in CI)

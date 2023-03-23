@@ -242,6 +242,11 @@ export class Runner {
           '--tty',
           '--network',
           'host',
+          // Mount the cwd so we can use `-f`.
+          '--volume',
+          `${process.cwd()}:/mnt/`,
+          '--workdir',
+          '/mnt',
           postgresDockerImage,
           'psql',
           databaseUrl,
