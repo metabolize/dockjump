@@ -54,7 +54,9 @@ export class Runner {
     const { port, databaseName, username, password } = this.config.development
     const gmrcConfig = `module.exports = {
   rootConnectionString: 'postgres://postgres:postgres@localhost:${port}/postgres',
-  connectionString: 'postgres://${username}:${password}@localhost:${port}/${databaseName}',
+  connectionString:
+    process.env.DATABASE_URL ??
+    'postgres://${username}:${password}@localhost:${port}/${databaseName}',
   shadowConnectionString: 'postgres://${username}:${password}@localhost:${port}/${databaseName}_shadow',
 }
 `
@@ -225,7 +227,10 @@ export class Runner {
     console.error(`Removed container ${containerName}`)
   }
 
-  async performRunPsql(databaseUrl: string): Promise<void> {
+  async performRunPsql(
+    databaseUrl: string,
+    args: string[] = []
+  ): Promise<void> {
     const { postgresDockerImage } = this
     try {
       await spawn(
@@ -240,11 +245,14 @@ export class Runner {
           postgresDockerImage,
           'psql',
           databaseUrl,
+          ...args,
         ],
         { stdio: 'inherit' }
       )
     } catch (e) {
-      // Silence exceptions, which tend to be verbose enough.
+      // Do not print exceptions, since the existing output tends to be verbose
+      // enough.
+      process.exit(1)
     }
   }
 

@@ -45,9 +45,10 @@ export default async function main(inArgs?: string[]): Promise<void> {
   subparsers.add_parser('db-url', {
     help: 'Print the URL for the application database',
   })
-  subparsers.add_parser('psql', {
+  const psql = subparsers.add_parser('psql', {
     help: 'Run psql against the running application database',
   })
+  psql.add_argument('args', { help: 'arguments to pass', nargs: '*' })
   const run = subparsers.add_parser('run', {
     help: 'Run the given command with DATABASE_URL set in the environment',
   })
@@ -83,7 +84,7 @@ export default async function main(inArgs?: string[]): Promise<void> {
       runner.performPrintDatabaseUrl()
       break
     case 'psql':
-      await runner.performRunPsql(runner.appDatabaseUrl)
+      await runner.performRunPsql(runner.appDatabaseUrl, args.args)
       break
     case 'run':
       await runner.performRun(args.cmd, args.args)
