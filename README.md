@@ -78,7 +78,7 @@ SQL again.
 A few patterns in this tool were gleaned from [Graphile Starter][].
 
 The name of this package was inspired by [mail jumping][], a practice which
-involves docks&hellip; and the Post.
+involves docks and the Post&hellip;.
 
 ![](https://fh-sites.imgix.net/sites/4390/2020/08/31200405/U.S.-Mailboat-Tour-image-1.jpg?auto=compress%2Cformat&w=700&h=700&fit=max)
 
