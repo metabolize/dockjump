@@ -25,7 +25,9 @@ export type RequiredDeep<T> = {
   [K in keyof T]: RequiredDeep<T[K]>
 } & Required<T>
 
-export type Config = RequiredDeep<ConfigInput>
+export type Config = RequiredDeep<ConfigInput> & {
+  databaseUrlOverride?: string
+}
 
 export const DEFAULT_CONFIG: PartialDeep<Config> = {
   development: {
@@ -54,5 +56,11 @@ export async function loadConfig(): Promise<RequiredDeep<Config>> {
       containerName: `dockjump_${validated.development.databaseName}`,
     },
   }
-  return lodash.defaultsDeep({}, validated, dynamicDefaults, DEFAULT_CONFIG)
+  return lodash.defaultsDeep(
+    {},
+    { databaseUrlOverride: process.env.DATABASE_URL },
+    validated,
+    dynamicDefaults,
+    DEFAULT_CONFIG
+  )
 }

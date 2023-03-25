@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+import assert from 'assert'
 import { spawn } from 'child-process-promise'
 import { existsSync, promises as fs } from 'fs'
 import path from 'path'
@@ -38,8 +39,12 @@ export class Runner {
   get appDatabaseUrl(): string {
     const {
       development: { port, databaseName, username, password },
+      databaseUrlOverride,
     } = this.config
-    return `postgres://${username}:${password}@localhost:${port}/${databaseName}`
+    return (
+      databaseUrlOverride ??
+      `postgres://${username}:${password}@localhost:${port}/${databaseName}`
+    )
   }
 
   performPrintDatabaseUrl(): void {
@@ -68,7 +73,10 @@ export class Runner {
     const { postgresDockerImage } = this
     const {
       development: { port, databaseName, username, password },
+      databaseUrlOverride,
     } = this.config
+
+    assert(databaseUrlOverride === undefined)
 
     console.error('Setting up databases for graphile-migrate')
 
@@ -121,7 +129,11 @@ export class Runner {
   }
 
   async containerExists(): Promise<boolean> {
-    const { containerName } = this.config.development
+    const {
+      development: { containerName },
+      databaseUrlOverride,
+    } = this.config
+    assert(databaseUrlOverride === undefined)
     return namedContainerExists(containerName)
   }
 
@@ -129,7 +141,10 @@ export class Runner {
     const { postgresDockerImage } = this
     const {
       development: { containerName, port },
+      databaseUrlOverride,
     } = this.config
+
+    assert(databaseUrlOverride === undefined)
 
     if (await this.containerExists()) {
       console.error(`Container ${containerName} already exists; nothing to do.`)
@@ -182,7 +197,12 @@ export class Runner {
   private async start(
     { attach }: { attach: boolean } = { attach: false }
   ): Promise<void> {
-    const { containerName } = this.config.development
+    const {
+      development: { containerName },
+      databaseUrlOverride,
+    } = this.config
+    assert(databaseUrlOverride === undefined)
+
     if (attach) {
       console.error(`Attaching to container ${containerName}`)
       await spawn('docker', ['start', containerName, '--attach'], {
@@ -203,7 +223,12 @@ export class Runner {
   }
 
   private async stop(): Promise<void> {
-    const { containerName } = this.config.development
+    const {
+      development: { containerName },
+      databaseUrlOverride,
+    } = this.config
+    assert(databaseUrlOverride === undefined)
+
     console.error(`Stopping container ${containerName}`)
     await stopContainer(containerName)
   }
@@ -215,7 +240,11 @@ export class Runner {
   }
 
   async performRemoveContainer(): Promise<void> {
-    const { containerName } = this.config.development
+    const {
+      development: { containerName },
+      databaseUrlOverride,
+    } = this.config
+    assert(databaseUrlOverride === undefined)
 
     if (!(await namedContainerExists(containerName))) {
       console.error(`Container ${containerName} doesn't exist; nothing to do.`)
@@ -227,11 +256,8 @@ export class Runner {
     console.error(`Removed container ${containerName}`)
   }
 
-  async performRunPsql(
-    databaseUrl: string,
-    args: string[] = []
-  ): Promise<void> {
-    const { postgresDockerImage } = this
+  async performRunPsql(args: string[] = []): Promise<void> {
+    const { appDatabaseUrl, postgresDockerImage } = this
     try {
       await spawn(
         'docker',
@@ -249,7 +275,7 @@ export class Runner {
           '/mnt',
           postgresDockerImage,
           'psql',
-          databaseUrl,
+          appDatabaseUrl,
           ...args,
         ],
         { stdio: 'inherit' }

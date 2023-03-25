@@ -89,7 +89,7 @@ export default async function main(inArgs?: string[]): Promise<void> {
       runner.performPrintDatabaseUrl()
       break
     case 'psql':
-      await runner.performRunPsql(runner.appDatabaseUrl, args.args)
+      await runner.performRunPsql(args.args)
       break
     case 'run':
       await runner.performRun(args.cmd, args.args, { start: args.start })
