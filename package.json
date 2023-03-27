@@ -42,7 +42,7 @@
     "globby": "^13.1.1",
     "lodash": "^4.17.21",
     "prettier": "^2.6.2",
-    "type-fest": "3.5.2",
+    "type-fest": "3.7.1",
     "wait-promise": "^0.4.1"
   },
   "peerDependencies": {
