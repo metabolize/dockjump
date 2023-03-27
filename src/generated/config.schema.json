@@ -1,0 +1,38 @@
+{
+  "$ref": "#/definitions/ConfigInput",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ConfigInput": {
+      "additionalProperties": false,
+      "properties": {
+        "development": {
+          "additionalProperties": false,
+          "properties": {
+            "containerName": {
+              "type": "string"
+            },
+            "databaseName": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "port": {
+              "type": "number"
+            },
+            "username": {
+              "type": "string"
+            }
+          },
+          "required": ["databaseName"],
+          "type": "object"
+        },
+        "postgresVersion": {
+          "type": "string"
+        }
+      },
+      "required": ["development"],
+      "type": "object"
+    }
+  }
+}

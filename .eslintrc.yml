@@ -1,0 +1,28 @@
+env:
+  mocha: true
+
+extends:
+  - standard
+  - 'plugin:@typescript-eslint/recommended'
+  - prettier
+
+plugins:
+  - simple-import-sort
+
+parser: '@typescript-eslint/parser'
+
+rules:
+  # We keep whitespace cleaned up.
+  no-trailing-spaces: 'error'
+  eol-last: 'error'
+
+  '@typescript-eslint/explicit-function-return-type':
+    ['error', { 'allowExpressions': true }]
+
+  # Our additions.
+  no-var: 'error'
+  prefer-const: 'error'
+  no-console: 'error'
+
+  'simple-import-sort/imports': 'error'
+  'simple-import-sort/exports': 'error'
