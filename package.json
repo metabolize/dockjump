@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@types/argparse": "2.0.10",
-    "@types/chai": "4.3.1",
+    "@types/chai": "4.3.4",
     "@types/child-process-promise": "2.2.2",
     "@types/dirty-chai": "2.0.2",
     "@types/lodash": "4.14.182",
@@ -62,7 +62,7 @@
     "@typescript-eslint/eslint-plugin": "5.47.1",
     "@typescript-eslint/parser": "5.47.1",
     "1schema": "0.2.0",
-    "chai": "4.3.6",
+    "chai": "4.3.7",
     "chai-as-promised": "7.1.1",
     "del-cli": "4.0.1",
     "dirty-chai": "2.0.1",
