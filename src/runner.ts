@@ -104,6 +104,7 @@ export class Runner {
         `APP_PASSWORD=${password}`,
         '--env',
         `APP_DATABASE_NAME=${databaseName}`,
+        '--add-host=host.docker.internal:host-gateway',
         postgresDockerImage,
         'bash',
       ],
@@ -175,7 +176,7 @@ export class Runner {
 
     try {
       // Give the Postgres server a chance to start.
-      await wait.sleep(1e3)
+      await wait.sleep(2e3)
       await this.setUpDatabases()
       await this.migrate()
     } finally {
