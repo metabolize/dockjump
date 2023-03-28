@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Fixes for Linux.
+
 ## 0.1.1
 
 - Bump dependencies and remove unused dependencies.
