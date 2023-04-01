@@ -62,7 +62,7 @@
     "chai-as-promised": "7.1.1",
     "del-cli": "5.0.0",
     "dirty-chai": "2.0.1",
-    "eslint": "8.36.0",
+    "eslint": "8.37.0",
     "eslint-config-prettier": "8.8.0",
     "eslint-config-standard": "17.0.0",
     "eslint-plugin-import": "2.27.5",
