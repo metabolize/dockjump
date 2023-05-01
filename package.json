@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@types/argparse": "2.0.10",
-    "@types/chai": "4.3.4",
+    "@types/chai": "4.3.5",
     "@types/child-process-promise": "2.2.2",
     "@types/dirty-chai": "2.0.2",
     "@types/lodash": "4.14.192",
