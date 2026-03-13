@@ -23,8 +23,9 @@
     "dev": "tsc --watch",
     "check-types": "tsc --noEmit --project .",
     "lint": "eslint \"**/*.ts\"",
-    "prettier:check": "prettier --check \"**/*.@(ts|js|yml|md|json)\"",
-    "prettier": "prettier --write \"**/*.@(ts|js|yml|md|json)\"",
+    "format:check": "prettier --check \"**/*.@(ts|js|yml|md|json)\"",
+    "format:fix": "prettier --write \"**/*.@(ts|js|yml|md|json)\"",
+    "schema:check": "1schema check",
     "schema:update": "1schema update",
     "test": "mocha",
     "prepare": "npm run build"
