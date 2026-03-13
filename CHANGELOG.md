@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0
+
+- BREAKING CHANGE: Require Node 20+.
+- check-schema: Don't swallow up "unexpected" errors.
+- Update dependencies.
+
 ## 0.1.2
 
 - Fixes for Linux.
