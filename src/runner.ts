@@ -317,28 +317,41 @@ export class Runner {
   private async dump({
     schemaOnly,
   }: { schemaOnly?: boolean } = {}): Promise<string> {
-    const { postgresDockerImage, appDatabaseUrl } = this
-
     // TODO: Add option to exclude more schema.
-    const { stdout } = await spawn(
-      'docker',
-      [
-        'run',
-        '--network',
-        'host',
-        '--rm',
-        postgresDockerImage,
-        'pg_dump',
-        '--no-sync',
-        schemaOnly ? '--schema-only' : '',
-        '--no-owner',
-        '--exclude-schema=graphile_migrate',
-        appDatabaseUrl,
-      ].filter(Boolean),
-      { capture: ['stdout'] }
-    )
+    const pgDumpArgs = [
+      '--no-sync',
+      schemaOnly ? '--schema-only' : '',
+      '--no-owner',
+      '--exclude-schema=graphile_migrate',
+      this.appDatabaseUrl,
+    ].filter(Boolean)
 
-    return stdout
+    if (this.config.databaseUrlOverride) {
+      console.error(
+        'Since database URL is set, dumping from the host instead of the container'
+      )
+
+      const { stdout } = await spawn('pg_dump', pgDumpArgs, {
+        capture: ['stdout'],
+      })
+
+      return stdout
+    } else {
+      const { stdout } = await spawn(
+        'docker',
+        [
+          'run',
+          '--network',
+          'host',
+          '--rm',
+          this.postgresDockerImage,
+          'pg_dump',
+        ].concat(pgDumpArgs),
+        { capture: ['stdout'] }
+      )
+
+      return stdout
+    }
   }
 
   async performDump(): Promise<void> {
