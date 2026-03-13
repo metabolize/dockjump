@@ -98,11 +98,7 @@ export default async function main(inArgs?: string[]): Promise<void> {
       await runner.performWriteSchema()
       break
     case 'check-schema':
-      try {
-        await runner.performCheckSchema()
-      } catch (e) {
-        process.exit(1)
-      }
+      await runner.performCheckSchema()
       break
     case 'dump':
       await runner.performDump()
